@@ -2,12 +2,16 @@ package com.example.jwtserver.config;
 
 import com.example.jwtserver.filter.MyFilter1;
 import com.example.jwtserver.filter.MyFilter3;
+import com.example.jwtserver.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.web.filter.CorsFilter;
@@ -20,6 +24,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
 
+    @Bean
+    public BCryptPasswordEncoder encodePwd(){
+        return new BCryptPasswordEncoder();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 //        http.addFilterBefore(new MyFilter3(), BasicAuthenticationFilter.class);
@@ -30,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         //가장 빨리 필터 실행하세요!
         http.addFilterBefore(new MyFilter3(), SecurityContextPersistenceFilter.class);
-
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager())); //전달해야하는 파라미터 있음. AuthenticationManager, WebSecurityConfigurerAdapter가 줌
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             //세션 사용하지 않음
@@ -65,7 +74,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/v1/admin/**")
                 .access("hasRole('ROLE_USER')")
             .anyRequest().permitAll();
-
+//                .and()
+//                .formLogin()
+//                .loginProcessingUrl("/login") //default값인데.. 지금 disabled사용중 -> login요청 동작안해
+//  -> jwtAuthenticationFilter 생성
 
     }
 }
