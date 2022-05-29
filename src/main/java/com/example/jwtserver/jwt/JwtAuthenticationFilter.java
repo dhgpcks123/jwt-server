@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("username", principalDetails.getUser().getUsername())
                 // 비공개 Claim. 넣고싶은 거 넣으면 됨. id만 넣어도 될 듯
 //                .sign(Algorithm.HMAC256(JwtProperties.SECRET))
-                .sign(Algorithm.HMAC256("cos"));
+                .sign(Algorithm.HMAC512("cos"));
 
 
         //일반적으로 서버쪽 세션ID
@@ -118,7 +118,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 클라이언트 쪽으로 JWT 토큰 응답, 요청할 때 마다 JWT토큰 가지고 요청
         // 서버는 JWT 토큰이 유효한지 판단이 필요함. 필터를 만들어야함
         response.addHeader("Authorization", "Bearer "+jwtToken);
-        super.successfulAuthentication(request, response, chain, authResult);
 
+        /*
+
+메타코딩
+1년 전
+제 깃에 있어요 ㅎ
+https://github.com/codingspecialist/Springboot-Oauth2.0-Facebook-Google-Login-JWT
+
+만약에리엑트쪽 연동원하면
+https://github.com/codingspecialist/Springboot-JWT-React-OAuth2.0-Eazy
+
+
+
+         */
     }
 }
